@@ -1,14 +1,15 @@
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
+const bodyParser = require('body-parser');
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
+  .use(bodyParser)
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
-  .get('/onzeapi', (req, res) => {
-    console.log(req)
-    res.send('hallo')
+  .post('/onzeapi', (req, res) => {
+    console.log(req.body)
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
