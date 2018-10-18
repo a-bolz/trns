@@ -1,15 +1,13 @@
-require User from './user'
-
+const dotenv = require('dotenv');
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const OAuth2Strategy = require('passport-oauth2');
+const mongodb = require("mongodb");
+const objectID = mongodb.ObjectID;
 
-
-
-require('dotenv').config()
 
 passport.use(new OAuth2Strategy({
   authorizationURL: 'https://app.teamleader.eu/oauth2/authorize',
@@ -18,35 +16,55 @@ passport.use(new OAuth2Strategy({
   clientSecret: process.env.CLIENT_SECRET,
   callbackURL: "http://localhost:5000/auth/example/callback",
 },
-function(accessToken, refreshToken, profile, cb) {
-  console.log(accessToken, '\n\n', refreshToken, '\n\n', profile, '\n\n', cb)
-//  User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-//    return cb(err, user);
-//  });
-}
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(accessToken, '\n\n', refreshToken, '\n\n', profile, '\n\n', cb)
+  //  User.findOrCreate({ exampleId: profile.id }, function (err, user) {
+  //    return cb(err, user);
+  //  });
+  }
 ));
 
+const app = express()
 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .use(bodyParser.json())
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/auth/example', passport.authenticate('oauth2'))
-  .get(
-    '/auth/example/callback', 
-    passport.authenticate('oauth2', { failureRedirect: '/login' }),
-    function(req, res) {
-      // Successful authentication, redirect home.
-      res.redirect('/');
-   })
-  .get('/', (req, res) => res.render('pages/index'))
-  .get('/authenticate', (req, res) => res.render('pages/authenticate'))
-  .post('/onzeapi', (req, res) => {
-    console.log(req.body)
-    res.send('thanks')
-  })
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+console.log('\n\n\n', process.env, '\n\n\n');
+app.use(express.static(path.join(__dirname, 'public')))
+.use(bodyParser.json())
+.set('views', path.join(__dirname, 'views'))
+.set('view engine', 'ejs')
+.get('/auth/example', passport.authenticate('oauth2'))
+.get(
+  '/auth/example/callback', 
+  passport.authenticate('oauth2', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+ })
+.get('/', (req, res) => res.render('pages/index'))
+.get('/authenticate', (req, res) => res.render('pages/authenticate'))
+.post('/onzeapi', (req, res) => {
+  console.log(req.body)
+  res.send('thanks')
+})
+
+var db;
+
+var mongo_uri = 'mongodb://heroku_ndgq8qhg:2magn96cpe4mjfds7ej3iok649@ds161146.mlab.com:61146/heroku_ndgq8qhg'
+mongodb.MongoClient.connect(mongo_uri || "mongodb://localhost:27017/test", function (err, client) {  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
+
+  //save database object from the callback for reuse
+  db = client.db();
+  console.log("Database connection ready");
+
+  //initialize the app.
+  const server = app.listen(process.env.PORT || 5000, function () {
+    const port = server.address().port;
+    console.log("App now running on port", port);
+  });
+
+});
 
 
 //Webhook Post Data
