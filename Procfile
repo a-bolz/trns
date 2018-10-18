@@ -1,1 +1,1 @@
-web: node index.js
+web: DEBUG=express:* node index.js
