@@ -2,6 +2,8 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 const Base64 = require('js-base64').Base64;
+const mime = require('mime');
+const mimeMessage = require('mime-message');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -88,6 +90,7 @@ function listLabels(auth) {
   });
 }
 
+
 /**
  * Create Draft email.
  *
@@ -97,9 +100,9 @@ function listLabels(auth) {
  * @param  {Function} callback Function to call when the request is complete.
  */
 function createDraft(auth, userId, email, callback) {
-  // Using the js-base64 library for encoding:
-  // https://www.npmjs.com/package/js-base64
-  var base64EncodedEmail = Base64.encodeURI(email);
+  //var base64EncodedEmail = Base64.encodeURI(email);
+  var base64EncodedEmail = createMessage('raefir@gmail.com', 'leffertsmilan@gmail.com')
+
   const gmail = google.gmail({version: 'v1', auth});
 
   var request = gmail.users.drafts.create({
@@ -114,6 +117,35 @@ function createDraft(auth, userId, email, callback) {
   //request.execute(callback);
 }
 
-function draftSuccess() {
-  console.log('Draft created!');
+function draftSuccess(resp) {
+  console.log('Draft Crafted!', resp);
+}
+
+function createMessage(sender, receiver) {
+  const email = fs.readFileSync("emailMessage").toString('utf-8');
+  const emailByLine = email.split("\n")
+
+  const messageBase = {
+    type: 'text/html',
+    encoding: 'UTF-8',
+    from: sender,
+    to: [
+      receiver
+    ],
+    cc: [],
+    bcc: [],
+    replyTo: [
+      sender,
+    ],
+    date: new Date(),
+    subject: emailByLine[0],
+    body: emailByLine[1]
+  }
+
+  if (mimeMessage.validMimeMessage(messageBase)) {
+    const message = mimeMessage.createMimeMessage(messageBase)
+    console.log('\n\n\n', messageBase)
+    const base64SafeString = message.toBase64SafeString()
+    return base64SafeString;
+  }
 }
