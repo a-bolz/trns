@@ -1,4 +1,4 @@
-const dotenv = require('dotenv');
+const dotenv = require('dotenv').config();
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
@@ -26,7 +26,26 @@ passport.use(new OAuth2Strategy({
 
 const app = express()
 
-console.log('\n\n\n', process.env, '\n\n\n');
+
+var db;
+
+mongodb.MongoClient.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/textwerk_dev", function (err, client) {
+  if (err) {
+    process.exit(1);
+  }
+
+  //save database object from the callback for reuse
+  db = client.db();
+  console.log("Database connection ready");
+
+
+  //initialize the app.
+  const server = app.listen(process.env.PORT || 5000, function () {
+    const port = server.address().port;
+    console.log("App now running on port", port);
+  });
+});
+
 app.use(express.static(path.join(__dirname, 'public')))
 .use(bodyParser.json())
 .set('views', path.join(__dirname, 'views'))
@@ -42,30 +61,17 @@ app.use(express.static(path.join(__dirname, 'public')))
 .get('/', (req, res) => res.render('pages/index'))
 .get('/authenticate', (req, res) => res.render('pages/authenticate'))
 .post('/onzeapi', (req, res) => {
-  console.log(req.body)
   res.send('thanks')
 })
-
-var db;
-
-var mongo_uri = 'mongodb://heroku_ndgq8qhg:2magn96cpe4mjfds7ej3iok649@ds161146.mlab.com:61146/heroku_ndgq8qhg'
-mongodb.MongoClient.connect(mongo_uri || "mongodb://localhost:27017/test", function (err, client) {  if (err) {
-    console.log(err);
-    process.exit(1);
-  }
-
-  //save database object from the callback for reuse
-  db = client.db();
-  console.log("Database connection ready");
-
-  //initialize the app.
-  const server = app.listen(process.env.PORT || 5000, function () {
-    const port = server.address().port;
-    console.log("App now running on port", port);
-  });
-
-});
-
+.get('/milan', (req, res) => {
+  db.collection('milan').find({}).toArray(function(err, docs) {
+    if (err) {
+      console.log(err) 
+    } else {
+      res.status(200).json(docs)
+    }
+  })
+})
 
 //Webhook Post Data
 //{
