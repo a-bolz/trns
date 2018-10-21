@@ -67,29 +67,6 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
-/**
- * Lists the labels in the user's account.
- *
- * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
- */
-function listLabels(auth) {
-  const gmail = google.gmail({version: 'v1', auth});
-  gmail.users.labels.list({
-    userId: 'me',
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
-    const labels = res.data.labels;
-    if (labels.length) {
-      console.log('Labels:');
-      labels.forEach((label) => {
-        console.log(`- ${label.name}`);
-      });
-    } else {
-      console.log('No labels found.');
-    }
-  });
-}
-
 
 /**
  * Create Draft email.
@@ -120,6 +97,18 @@ function createDraft(auth, userId, email, callback) {
 function draftSuccess(resp) {
   console.log('Draft Crafted!', resp);
 }
+
+const deal;
+function getDeal() {
+  // Teamleader API call to receive deal info
+
+  // deal = ...
+
+  // client (first) name
+  // client email
+  // deal id
+}
+
 
 function createMessage(sender, receiver) {
   const email = fs.readFileSync("emailMessage").toString('utf-8');
