@@ -1,28 +1,44 @@
 const mongoose = require('mongoose')
 
-const dealSchema = mongoose.Schema({
-  type: String,
-  subject: {
-    type: String,
-    id: String,
-  },
-  account: {
-    type: String,
-    id: String,
-  }
-}
-
-module.exports = mongoose.model('Deal' dealSchema)
-
-//Webhook Post Data
-//{
-//  type: 'deal.moved',
-//  subject: {
-//    type: 'deal', 
-//    id: '60592a1b-8c7d-017e-a161-feaee35686f7' 
+//const dealSchema = mongoose.Schema({
+//  id: String,
+//  title: String,
+//  reference: String,
+//  status: String,
+//  customer: {
+//    type: {type: String},
+//    id: String
 //  },
-//  account: {
-//    type: 'account', 
-//    id: '0831327a-9e1a-0e3c-a85f-f3b3b911d0e8' 
-//  }
-//}
+//  lead: {
+//    customer: {},
+//    contact_person: {},
+//  },
+//  estimated_value: {},
+//  estimated_closing_date: {},
+//  estimated_probability: Number,
+//  closed_at: Date,
+//  created_at: Date,
+//  updated_at: Date,
+//  current_phase: {
+//    type: { type: String },
+//    id: String,
+//  },
+//  source: {
+//    type: { type: String },
+//    id: String,
+//  },
+//  quotations: Array,
+//  responsible_user: {
+//    type: { type: String },
+//    id: String,
+//  },
+//  department: {
+//    type: { type: String },
+//    id: String,
+//  },
+//  phase_history: [{}],
+//  custom_fields: [{}],
+//})
+const dealSchema = mongoose.Schema({ tl_data: {}})
+
+module.exports = mongoose.model('Deal', dealSchema)

@@ -4,6 +4,7 @@ const axios = require('axios')
 const url = require('url')
 const mongoose = require('mongoose')
 const db = mongoose.connection
+const Token = require('../db/models/Token')
 
 
 router.get('/', (req, res) => {
@@ -30,12 +31,8 @@ router.get('/callback', (req, res) => {
       grant_type: 'authorization_code'
     }
   }).then((response) => {
-    db.collection('tokens').drop()
-    db.collection('tokens').insert({ 
-      token_type: response.data.token_type, 
-      expires_in: response.data.expires_in, 
-      access_token: response.data.access_token, 
-      refresh_token: response.data.refresh_token })
+    Token.create(response.data)
+
     res.send(`authentication ok: access_token: ${response.data.access_token}, refresh_token: ${response.data.refresh_token}`)
   }).catch((error) => {
     console.log(error)

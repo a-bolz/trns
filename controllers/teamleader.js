@@ -4,24 +4,61 @@ const axios = require('axios')
 const url = require('url')
 const mongoose = require('mongoose')
 const db = mongoose.connection
-const Token = require('./db/Token')
-const Deal = require('./db/Deal')
+const Token = require('../db/models/Token')
+const Deal = require('../db/models/Deal')
 
 router.post('/deal_update', (req, res) => {
-  Deal.create(req.data, (err, instance) => {
-    if (err) return handleError(err);
-    console.log('saved')
+  const token = Token.findOne().sort({ created_at: -1 })
+  .then((data) => {
+    return axios({
+      method: 'post',
+      url: 'https://app.teamleader.eu/oauth2/access_token',
+      headers: {'content-type': 'application/json'},
+      data: {
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        refresh_token: data.refresh_token,
+        grant_type: 'refresh_token'
+      }
+    })
+  })
+  .then((response) => {
+    console.log('response');
+    return Token.create(response.data)
+  })
+  .then((token) => {
+    console.log('getting deals info', req.body.subject.id)
+    return axios({
+      method: 'get',
+      url: 'https://api.teamleader.eu/deals.info',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${token.access_token}`,
+      },
+      data: {
+        id: req.body.subject.id
+      }
+    })
+  }).then((response) => {
+    let gegevens = response.data.data
+    return Deal.create({ tl_data: gegevens })
+  })
+  .then((deal) => console.log(deal))
+  .catch((err) => {
+    console.log(err)
   })
 })
 
+
 router.get('/list_deal_updates', (req, res) => {
-  deals.find({}).then((data) => {
+  Deal.find({}).then((data) => {
     res.send(data)
   })
 })
 
+
 router.get('/set_webhook', (req, res) => {
-  tokens.findOne()
+  Token.findOne().sort({ created_at: -1 })
   .then((data) => {
     return axios({
       method: 'post',
@@ -51,7 +88,7 @@ router.get('/set_webhook', (req, res) => {
         types: [
           "deal.moved",
         ],
-        url: 'http://localhost:5000/teamleader/deal_update'
+        url: 'http://ee9ec5fd.ngrok.io/teamleader/deal_update'
       }
     })
   })
@@ -64,7 +101,7 @@ router.get('/set_webhook', (req, res) => {
 })
 
 router.get('/list_webhooks', (req, res) => {
-  tokens.findOne()
+  Token.findOne().sort({ created_at: -1 })
   .then((data) => {
     return axios({
       method: 'post',
@@ -79,13 +116,8 @@ router.get('/list_webhooks', (req, res) => {
     })
   })
   .then((response) => {
-    tokens.drop()
-    tokens.insert({ 
-      token_type: response.data.token_type, 
-      expires_in: response.data.expires_in, 
-      access_token: response.data.access_token, 
-      refresh_token: response.data.refresh_token 
-    })
+    Token.create( response.data )
+
     return axios({
       method: 'get',
       url: 'https://api.teamleader.eu/webhooks.list',
