@@ -1,4 +1,9 @@
 const fs = require('fs')
+const readline = require('readline');
+const {google} = require('googleapis');
+const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const GMAIL_TOKEN_PATH = 'gmail_token.json';
+const GMAIL_CREDENTIALS_PATH = 'credentials.json';
 const TL_TOKEN_PATH = 'tl_token.json'
 const client_id = process.env.TL_CLIENT_ID;
 const client_secret = process.env_TL_CLIENT_SECRET;
@@ -118,47 +123,49 @@ module.exports = {
     },
     gmail_auth: {
     setToken: async (code) => {
+      const credentials = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
+      const {auth_uri, client_secret, client_id, redirect_uris} = credentials.installed;
       const response = await axios({
         method: 'post',
-        url: process.env.GMAIL_AUTH_URL,
+        url: auth_uri,
         headers: {'content-type': 'application/json'},
         data: {
-          client_id: process.env.TL_CLIENT_ID,
-          client_secret: process.env.TL_CLIENT_SECRET,
-          redirect_uri: process.env.TL_REDIRECT_URI || 'http://localhost:5000/auth/mail',
+          client_id: client_id,
+          client_secret: client_secret,
+          redirect_uri: 'https://localhost:5000/auth/gmail/',
           code: code,
           grant_type: 'authorization_code'
         }
       })
       const token_data = JSON.stringify(response.data);
-      await fs.writeFile(TL_TOKEN_PATH, token_data, (err) => {
+      await fs.writeFile(GMAIL_TOKEN_PATH, token_data, (err) => {
         if (err) throw err;
-        console.log('The file has been saved');
+        console.log('GMAIL TOKEN saved');
       });
       return Promise.resolve(response.data);
     },
     refreshToken: async () => {
-
       try {
-        const file = await readFile(TL_TOKEN_PATH, 'utf8');
+        const file = await readFile(GMAIL_TOKEN_PATH, 'utf8');
         const parsedFile = JSON.parse(file);
+      const {token_uri, client_secret, client_id, redirect_uris} = credentials.installed;
         const response = await axios({
           method: 'post',
-          url: 'https://app.teamleader.eu/oauth2/access_token',
+          url: token_uri,
           headers: {'content-type': 'application/json'},
           data: {
-            client_id: process.env.TL_CLIENT_ID,
-            client_secret: process.env.TL_CLIENT_SECRET,
+            client_id: client_id,
+            client_secret: client_secret,
             refresh_token: parsedFile.refresh_token,
             grant_type: 'refresh_token'
           }
         })
-        await fs.writeFile(TL_TOKEN_PATH, JSON.stringify(response.data), (err) => {
+        await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(response.data), (err) => {
           if (err) throw err;
         })
         return Promise.resolve(response.data.access_token)
       } catch (err) {
-        return Promise.resolve(err)
+        return Promise.reject(err)
       }
     },
 
