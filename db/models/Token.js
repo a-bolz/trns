@@ -15,7 +15,9 @@ const tokenSchema = mongoose.Schema(
 )
 
 tokenSchema.methods.findLatest = function(cb) {
-  return this.model('Animal').findOne().sort({ created_at: -1}, cb)
+  return this.model('Token').findOne().sort({ created_at: -1}, cb)
 }
+
+//tokenSchema.statics.findLatest = function findLatest (
 
 module.exports = mongoose.model('Token', tokenSchema)

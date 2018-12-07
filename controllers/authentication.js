@@ -1,42 +1,48 @@
 const express = require('express')
 const router = express.Router()
-const axios = require('axios')
 const url = require('url')
-const mongoose = require('mongoose')
-const db = mongoose.connection
-const Token = require('../db/models/Token')
+const { tl_auth } = require('../services/calls');
 
 
-router.get('/', (req, res) => {
+router.get('/teamleader', (req, res) => {
   res.redirect(url.format({
     pathname: "https://app.teamleader.eu/oauth2/authorize",
     query: {
-      client_id: process.env.CLIENT_ID,
+      client_id: process.env.TL_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5000/auth/callback',
+      redirect_uri: process.env.TL_REDIRECT_URI || 'http://localhost:5000/auth/teamleader/callback',
     }
   }));
 })
 
-router.get('/callback', (req, res) => {
-  axios({
-    method: 'post',
-    url: 'https://app.teamleader.eu/oauth2/access_token',
-    headers: {'content-type': 'application/json'},
-    data: {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5000/auth',
-      code: req.query.code,
-      grant_type: 'authorization_code'
-    }
-  }).then((response) => {
-    Token.create(response.data)
-
-    res.send(`authentication ok: access_token: ${response.data.access_token}, refresh_token: ${response.data.refresh_token}`)
-  }).catch((error) => {
-    console.log(error)
-  })
+router.get('/teamleader/callback', async (req, res) => {
+  try {
+    let token = await tl_auth.setToken(req.query.code);
+    res.send(`authentication ok: access_token: ${token.access_token}, refresh_token: ${token.refresh_token}`)
+  } catch (error) {
+    res.send(`error authenticating: ${error}`)
+  }
 })
+
+router.get('/gmail', (req, res) => {
+  res.redirect(url.format({
+    pathname: "https://app.gmail.eu/oauth2/authorize",
+    query: {
+      client_id: process.env.GMAIL_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri: process.env.GMAIL_REDIRECT_URI || 'http://localhost:5000/auth/gmail/callback',
+    }
+  }));
+})
+
+router.get('/gmail/callback', async (req, res) => {
+  try {
+    let token = await tl_auth.setToken(req.query.code);
+    res.send(`authentication ok: access_token: ${token.access_token}, refresh_token: ${token.refresh_token}`)
+  } catch (error) {
+    res.send(`error authenticating: ${error}`)
+  }
+})
+
 
 module.exports = router
