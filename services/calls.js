@@ -13,6 +13,10 @@ const util = require('util');
 
 const readFile = util.promisify(fs.readFile);
 
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.readonly'
+]
+
 const urls = {
   list_webhooks: 'https://api.teamleader.eu/webhooks.list',
   deals_info: 'https://api.teamleader.eu/deals.info',
@@ -122,52 +126,54 @@ module.exports = {
       }
     },
     gmail_auth: {
-    setToken: async (code) => {
-      const credentials = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
-      const {auth_uri, client_secret, client_id, redirect_uris} = credentials.installed;
-      const response = await axios({
-        method: 'post',
-        url: auth_uri,
-        headers: {'content-type': 'application/json'},
-        data: {
-          client_id: client_id,
-          client_secret: client_secret,
-          redirect_uri: 'https://localhost:5000/auth/gmail/',
-          code: code,
-          grant_type: 'authorization_code'
+      setToken: async (code) => {
+        try {
+          const cred_file = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
+          const gmail_credentials = JSON.parse(cred_file).installed;
+          const oauth2Client = new google.auth.OAuth2(
+            gmail_credentials.client_id,
+            gmail_credentials.client_secret,
+            process.env.GMAIL_REDIRECT_URI 
+          )
+          const { tokens } = await oauth2Client.getToken(code);
+          await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(tokens), (err) => {
+            if (err) throw err;
+            console.log('GMAIL TOKEN saved');
+          });
+          return Promise.resolve(tokens);
+        } catch(err) {
+          return Promise.reject(err);
         }
-      })
-      const token_data = JSON.stringify(response.data);
-      await fs.writeFile(GMAIL_TOKEN_PATH, token_data, (err) => {
-        if (err) throw err;
-        console.log('GMAIL TOKEN saved');
-      });
-      return Promise.resolve(response.data);
-    },
-    refreshToken: async () => {
-      try {
-        const file = await readFile(GMAIL_TOKEN_PATH, 'utf8');
-        const parsedFile = JSON.parse(file);
-      const {token_uri, client_secret, client_id, redirect_uris} = credentials.installed;
-        const response = await axios({
-          method: 'post',
-          url: token_uri,
-          headers: {'content-type': 'application/json'},
-          data: {
-            client_id: client_id,
-            client_secret: client_secret,
-            refresh_token: parsedFile.refresh_token,
-            grant_type: 'refresh_token'
-          }
-        })
-        await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(response.data), (err) => {
-          if (err) throw err;
-        })
-        return Promise.resolve(response.data.access_token)
-      } catch (err) {
-        return Promise.reject(err)
-      }
-    },
+      },
+      refreshToken: async () => {
+        try {
+          const file = await readFile(GMAIL_TOKEN_PATH, 'utf8');
+          console.log(file);
+          const parsedFile = JSON.parse(file);
+          const credentials = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
+          const parsedcredentials = JSON.parse(credentials);
+          console.log('refreshtoken', parsedFile.refresh_token, parsedcredentials.installed);
+          const {token_uri, client_secret, client_id, redirect_uris} = parsedcredentials.installed;
+          const response = await axios({
+            method: 'post',
+            url: token_uri,
+            headers: {'content-type': 'application/json'},
+            data: {
+              client_id: client_id,
+              client_secret: client_secret,
+              refresh_token: parsedFile.refresh_token,
+              grant_type: 'refresh_token'
+            }
+          })
+          await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(response.data), (err) => {
+            if (err) throw err;
+          })
+          return Promise.resolve(response.data.access_token)
+        } catch (err) {
+          console.log(err)
+          return Promise.reject(err)
+        }
+      },
 
     },
     gmail: {
