@@ -6,12 +6,14 @@ const { tl_auth, teamleader, gmail_auth, gmail } = require('../services/calls');
 
 router.post('/deal_update', async (req, res) => {
   try {
+    console.log('DATA VAN TEAMLEADER:', req.body);
     const tl_access_token = await tl_auth.refreshToken();
     const deals_info = await teamleader.getDealsInfo(tl_access_token, req.body.subject.id);
     const id = deals_info.data.data.lead.customer.id;
     const contacts = await teamleader.getContactsList(tl_access_token, { company: id })
     const gmail_access_token = await gmail_auth.refreshToken();
-    await gmail.submitDraft(gmail_access_token, {name: 'Milan', company: 'GrumpyOwl', addressee: 'raefir@gmail.com'});
+    const gmail_response = await gmail.submitDraft(gmail_access_token, {name: 'Milan', company: 'GrumpyOwl', addressee: 'raefir@gmail.com'});
+    console.log('response van gmail', gmail_response);
 
   } catch(error) {
     console.log(error);
