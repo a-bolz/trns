@@ -1,8 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const url = require('url')
-const { tl_auth, gmail_auth } = require('../services/calls');
-
+const { tl_auth, gmail_auth, gmail } = require('../services/calls');
+const Gmail = require('node-gmail-api')
+const promisify = require('promisify');
+const util = require('util');
+const fs = require('fs')
+const readFile = util.promisify(fs.readFile);
+const GMAIL_TOKEN_PATH = 'gmail_token.json';
 
 router.get('/teamleader', (req, res) => {
   res.redirect(url.format({
@@ -37,11 +42,9 @@ router.get('/gmail', (req, res) => {
 })
 
 router.get('/gmail/callback', async (req, res) => {
-  console.log("DINGDINGDING\n\n\n\n", req.query.code);
   try {
-    let token = await gmail_auth.setToken(req.query.code);
-    let newtoken = await gmail_auth.refreshToken();
-    res.send(`authentication ok: access_token1: ${token}, token2: ${newtoken}`)
+    await gmail_auth.setToken(req.query.code);
+    res.send('success!');
   } catch (error) {
     res.send(`error authenticating: ${error}`)
   }

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const readline = require('readline');
 const {google} = require('googleapis');
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
 const GMAIL_TOKEN_PATH = 'gmail_token.json';
 const GMAIL_CREDENTIALS_PATH = 'credentials.json';
 const TL_TOKEN_PATH = 'tl_token.json'
@@ -10,11 +10,13 @@ const client_secret = process.env_TL_CLIENT_SECRET;
 const axios = require('axios');
 const promisify = require('promisify');
 const util = require('util');
+const mimemessage = require('mimemessage');
+const Base64 = require('js-base64').Base64;
 
 const readFile = util.promisify(fs.readFile);
 
 const scopes = [
-  'https://www.googleapis.com/auth/gmail.readonly'
+  'https://www.googleapis.com/auth/gmail.modify'
 ]
 
 const urls = {
@@ -22,6 +24,20 @@ const urls = {
   deals_info: 'https://api.teamleader.eu/deals.info',
   contacts_list: 'https://api.teamleader.eu/contacts.list',
   webhooks_register: 'https://api.teamleader.eu/webhooks.register'
+}
+
+const getEmail = (params) => {
+  const msg = mimemessage.factory({
+    contentType: 'text/html;charset=utf-8',
+    body: [`
+      Beste ${params.name},
+      Bedankt voor je deal met ${params.company}\nGr
+    `]
+  })
+  msg.header('from', 'andreasbolz@gmail.com');
+  msg.header('to', params.addressee);
+  msg.header('subject', 'please rate us');
+  return Base64.encode(msg.toString());
 }
 
 module.exports = {
@@ -147,28 +163,23 @@ module.exports = {
       },
       refreshToken: async () => {
         try {
-          const file = await readFile(GMAIL_TOKEN_PATH, 'utf8');
-          console.log(file);
-          const parsedFile = JSON.parse(file);
-          const credentials = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
-          const parsedcredentials = JSON.parse(credentials);
-          console.log('refreshtoken', parsedFile.refresh_token, parsedcredentials.installed);
-          const {token_uri, client_secret, client_id, redirect_uris} = parsedcredentials.installed;
-          const response = await axios({
-            method: 'post',
-            url: token_uri,
-            headers: {'content-type': 'application/json'},
-            data: {
-              client_id: client_id,
-              client_secret: client_secret,
-              refresh_token: parsedFile.refresh_token,
-              grant_type: 'refresh_token'
-            }
-          })
-          await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(response.data), (err) => {
+          const token_file = await readFile(GMAIL_TOKEN_PATH, 'utf8');
+          const credentials_file = await readFile(GMAIL_CREDENTIALS_PATH, 'utf8');
+          const tokens = JSON.parse(token_file);
+          const credentials = JSON.parse(credentials_file).installed;
+          const auth = new google.auth.OAuth2( 
+            credentials.client_id,
+            credentials.client_secret,
+            process.env.GMAIL_REDIRECT_URI
+          )
+          auth.setCredentials(tokens);
+          const res = await auth.refreshAccessToken();
+          const newCredentials = res.credentials
+          await fs.writeFile(GMAIL_TOKEN_PATH, JSON.stringify(newCredentials), (err) => {
             if (err) throw err;
-          })
-          return Promise.resolve(response.data.access_token)
+            console.log('GMAIL TOKEN saved');
+          });
+          return Promise.resolve(newCredentials.access_token);
         } catch (err) {
           console.log(err)
           return Promise.reject(err)
@@ -177,6 +188,36 @@ module.exports = {
 
     },
     gmail: {
-
+      getList: async(access_token) => {
+        return axios({
+          method: 'get',
+          url: 'https://www.googleapis.com/gmail/v1/users/me/labels',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+          },
+        })
+      },
+      submitDraft: async(token, message_params) => {
+        try {
+          const email = getEmail(message_params);
+          return axios({
+            method: 'post',
+            url: 'https://www.googleapis.com/gmail/v1/users/me/drafts',
+            headers: {
+              'content-type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            data: {
+              resource: {
+                message: {
+                  raw: email,
+                }
+              }
+            },
+          })
+        } catch(error) {
+          console.log(error)
+        }
+      }
     }
   }

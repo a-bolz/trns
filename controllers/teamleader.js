@@ -2,17 +2,17 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 const url = require('url')
-const calls = require('../services/calls');
-const auth = calls.tl_auth;
-const teamleader = calls.teamleader;
+const { tl_auth, teamleader, gmail_auth, gmail } = require('../services/calls');
 
 router.post('/deal_update', async (req, res) => {
   try {
-    const access_token = await auth.refreshToken();
-    const deals_info = await teamleader.getDealsInfo(access_token, req.body.subject.id);
+    const tl_access_token = await tl_auth.refreshToken();
+    const deals_info = await teamleader.getDealsInfo(tl_access_token, req.body.subject.id);
     const id = deals_info.data.data.lead.customer.id;
-    const contacts = await teamleader.getContactsList(access_token, { company: id })
-    console.log(contacts.data.data);
+    const contacts = await teamleader.getContactsList(tl_access_token, { company: id })
+    const gmail_access_token = await gmail_auth.refreshToken();
+    await gmail.submitDraft(gmail_access_token, {name: 'Milan', company: 'GrumpyOwl', addressee: 'raefir@gmail.com'});
+
   } catch(error) {
     console.log(error);
   }
@@ -21,7 +21,7 @@ router.post('/deal_update', async (req, res) => {
 //pass ngrok tunnel as query param in get_request
 router.get('/set_webhook', async (req, res) => {
   try {
-    const access_token = await auth.refreshToken();
+    const access_token = await tl_auth.refreshToken();
     await teamleader.registerWebhook(access_token);
     res.redirect('/teamleader/list_webhooks');
   } catch(error) {
@@ -30,7 +30,7 @@ router.get('/set_webhook', async (req, res) => {
 
 router.get('/list_webhooks', async (req, res) => {
   try {
-    const access_token = await auth.refreshToken();
+    const access_token = await tl_auth.refreshToken();
     const webhooks = await teamleader.getWebhooks(access_token);
     res.send(webhooks.data);
   } catch(error) {

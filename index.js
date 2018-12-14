@@ -35,5 +35,3 @@ app.set('view engine', 'ejs')
 
 app.use('/auth', auth)
 app.use('/teamleader', teamleader)
-
-
