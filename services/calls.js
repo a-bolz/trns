@@ -26,18 +26,81 @@ const urls = {
   webhooks_register: 'https://api.teamleader.eu/webhooks.register'
 }
 
-const getEmail = (params) => {
+const getEmail = () => {
   const msg = mimemessage.factory({
     contentType: 'text/html;charset=utf-8',
     body: [`
-      Beste ${params.name},
-      Bedankt voor je deal met ${params.company}\nGr
+      Beste jan,
+      Bedankt voor je deal met lbaat\nGr
     `]
   })
   msg.header('from', 'andreasbolz@gmail.com');
-  msg.header('to', params.addressee);
+  msg.header('to', 'andreasbolz@gmail.com');
   msg.header('subject', 'please rate us');
   return Base64.encode(msg.toString());
+}
+
+function draftMessage(params) {
+
+  const message = {
+    to: {
+      name: "Google Scripts",
+      email: "andreasbolz@gmail.com"
+    },
+    from: {
+      name: "Andreas",
+      email: "andreasbolz@gmail.com"
+    },
+    body: {
+      text: "Mr hänn is schon lang nümme g'she.",
+      html: "Mr hänn is schon <b>lang nümme</b> g'she."
+    },
+    subject: "ctrlq, tech à la carte",
+  };
+
+  return createMimeMessage_(message);
+}
+
+function encode_(subject) {
+  var enc_subject = Base64.encode(subject);
+  return '=?utf-8?B?' + enc_subject + '?=';
+}
+
+function createMimeMessage_(msg) {
+  console.log(msg);
+
+  var nl = "\n";
+  var boundary = "__ctrlq_dot_org__";
+
+  var mimeBody = [
+
+    "MIME-Version: 1.0",
+    "To: "      + msg.to.name + "<" + msg.to.email + ">",
+    "From: "    + msg.from.name + "<" + msg.from.email + ">",
+    "Subject: " + msg.subject, // takes care of accented characters
+
+    "Content-Type: multipart/alternative; boundary=" + boundary + nl,
+    "--" + boundary,
+
+    "Content-Type: text/plain; charset=UTF-8",
+    "Content-Transfer-Encoding: base64" + nl,
+    msg.body.text + nl,
+    "--" + boundary,
+
+    "Content-Type: text/html; charset=UTF-8",
+    "Content-Transfer-Encoding: base64" + nl,
+    msg.body.html + nl
+
+  ];
+
+
+  mimeBody.push("--" + boundary + "--");
+
+  console.log('after mime',mimeBody.join(nl));
+
+
+  return mimeBody.join(nl);
+
 }
 
 module.exports = {
@@ -199,7 +262,7 @@ module.exports = {
       },
       submitDraft: async(token, message_params) => {
         try {
-          const email = getEmail(message_params);
+          const email = getEmail();
           return axios({
             method: 'post',
             url: 'https://www.googleapis.com/gmail/v1/users/me/drafts',
@@ -208,10 +271,8 @@ module.exports = {
               'Authorization': `Bearer ${token}`,
             },
             data: {
-              resource: {
-                message: {
-                  raw: email,
-                }
+              "message": {
+                "raw": email,
               }
             },
           })

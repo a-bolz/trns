@@ -3,6 +3,14 @@ const router = express.Router()
 const axios = require('axios')
 const url = require('url')
 const { tl_auth, teamleader, gmail_auth, gmail } = require('../services/calls');
+const env = process.env
+
+const vars = Object.keys(process.env).filter( el => el.includes('GMAIL') || el.includes('TL') || el.includes('TUNNEL')).reduce((obj, k) => {
+  obj[k] = env[k];
+  return obj;
+}, {});
+console.log(vars);
+
 
 router.post('/deal_update', async (req, res) => {
   try {
@@ -39,5 +47,9 @@ router.get('/list_webhooks', async (req, res) => {
     res.send(error);
   }
 })
+
+router.get('/get_env', async (req, res) => {
+  res.send(vars);
+});
 
 module.exports = router

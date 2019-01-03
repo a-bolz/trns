@@ -36,7 +36,7 @@ router.get('/gmail', (req, res) => {
       client_id: process.env.GMAIL_CLIENT_ID,
       response_type: 'code',
       redirect_uri: process.env.GMAIL_REDIRECT_URI || 'http://localhost:5000/auth/gmail/callback',
-      scope: 'https://www.googleapis.com/auth/gmail.readonly'
+      scope: 'https://www.googleapis.com/auth/gmail.compose'
     }
   }));
 })
@@ -47,6 +47,15 @@ router.get('/gmail/callback', async (req, res) => {
     res.send('success!');
   } catch (error) {
     res.send(`error authenticating: ${error}`)
+  }
+})
+
+router.get('/gmail/postdraft', async (req, res) => {
+  try {
+    const token = await gmail_auth.refreshToken();
+    await gmail.submitDraft(token, {});
+  } catch(error) {
+    console.log(error);
   }
 })
 
