@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+
+<body>
+    <div id="container">
+        <div id="main">
+            <h2>Feedback</h2>
+            <h4> Geef AUB Feedback op deal met id: <%= id %></h4>
+            <%= title %>
+            <form method="get">
+                <label for="cijfer">cijfer:</label>
+                <select name=cijfer required=true id="cijfer">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10 </option>
+                </select>
+                <br><br>
+                <label for="feedback">feedback:</label>
+                <input name=feedback" required="true" style="height: 100px; width: 300px" type="text" minlength="30" id="feedback"></input>
+                <input id="deal_id" name="deal_id" type="hidden" value="<%= id %>">
+                <input type="submit" value="Verstuur Feedback!">
+
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        background-color: #f3f3f3;
+    }
+
+    #container {
+        margin: auto;
+        width: 80%;
+        height: 100%;
+        background-color: #f3f3f3;
+    }
+
+    #main {
+       width: 70%;
+       margin: auto;
+    }
+
+    #main h2 {
+      width: 20%;
+      margin: 20px auto;
+    }
+    #main h4 {
+      width: 40%;
+      margin: 20px auto;
+    }
+</style>

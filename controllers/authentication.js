@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const url = require('url')
-const { tl_auth, gmail_auth, gmail } = require('../services/calls');
+const { tl_auth, gmail_auth, gmail, sheets } = require('../services/calls');
 const Gmail = require('node-gmail-api')
 const promisify = require('promisify');
 const util = require('util');
@@ -36,7 +36,7 @@ router.get('/gmail', (req, res) => {
       client_id: process.env.GMAIL_CLIENT_ID,
       response_type: 'code',
       redirect_uri: process.env.GMAIL_REDIRECT_URI || 'http://localhost:5000/auth/gmail/callback',
-      scope: 'https://www.googleapis.com/auth/gmail.compose'
+      scope: 'https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/drive.file'
     }
   }));
 })
@@ -54,6 +54,17 @@ router.get('/gmail/postdraft', async (req, res) => {
   try {
     const token = await gmail_auth.refreshToken();
     await gmail.submitDraft(token, {});
+  } catch(error) {
+    console.log(error);
+  }
+})
+
+router.get('/sheets/getblob', async (req, res) => {
+  try {
+    const token = await gmail_auth.refreshToken();
+    console.log(token);
+    const res = await sheets.getBlob(token);
+    console.log(res.data);
   } catch(error) {
     console.log(error);
   }

@@ -26,16 +26,17 @@ const urls = {
   webhooks_register: 'https://api.teamleader.eu/webhooks.register'
 }
 
-const getEmail = () => {
+const getEmail = (deal) => {
   const msg = mimemessage.factory({
     contentType: 'text/html;charset=utf-8',
     body: [`
-      Beste jan,
+      Beste ${deal.firstName},
       Bedankt voor je deal met lbaat\nGr
+      stem op: https://localhost:5000/feedback?id=${Base64.encode(deal.deal_id)}
     `]
   })
   msg.header('from', 'andreasbolz@gmail.com');
-  msg.header('to', 'andreasbolz@gmail.com');
+  msg.header('to', deal.email);
   msg.header('subject', 'please rate us');
   return Base64.encode(msg.toString());
 }
@@ -260,9 +261,9 @@ module.exports = {
           },
         })
       },
-      submitDraft: async(token, message_params) => {
+      submitDraft: async(token, deal) => {
         try {
-          const email = getEmail();
+          const email = getEmail(deal);
           return axios({
             method: 'post',
             url: 'https://www.googleapis.com/gmail/v1/users/me/drafts',
@@ -280,5 +281,18 @@ module.exports = {
           console.log(error)
         }
       }
-    }
+    },
+    sheets: {
+      getBlob: async(access_token) => {
+        var file_id = '18dpJ6tn0lZMD9otnq5TrDU_NjYeX9lTHiUIMIQOjRQo';
+        return axios({
+          method: 'get',
+          url: `https://www.googleapis.com/v4/spreadsheets/${file_id}/values/Sheet1!1:2`,
+          headers: {
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`,
+          }
+        })
+      },
+    },
   }
