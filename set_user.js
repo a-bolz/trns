@@ -17,7 +17,10 @@ var firstUser = new User({
 console.log(firstUser);
 
 firstUser.save(function(err) {
-  if (err) throw err;
+  if (err) {
+   console.log('error saving user');
+    throw err;
+  }
 });
 
 User.findOne({ userName: 'admin'}, function(err, user) {
