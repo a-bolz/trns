@@ -75,6 +75,9 @@ passport.deserializeUser(function(id, cb) {
   })
 });
 
+app.get('/', function(req, res) {
+  res.render('root');
+});
 
 app.get('/login',
   function(req, res) {
