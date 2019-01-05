@@ -2,7 +2,9 @@ const express = require('express')
 const router = express.Router()
 const url = require('url')
 const Deal = require('../models/deal');
+const User = require('../models/user');
 const Base64 = require('js-base64').Base64;
+const passport = require('../passport');
 
 router.get('/', async (req, res) => {
   const id = Base64.decode(req.query.id);
@@ -35,6 +37,16 @@ router.get('/', async (req, res) => {
       console.log(error);
     }
   }
-})
+});
+
+router.get('/overzicht', 
+  require('connect-ensure-login').ensureLoggedIn(),
+  async (req, res)=> {
+    const deals = await Deal.find({});
+    res.render('feedback/overzicht', {deals: deals});
+  }
+);
+
+
 
 module.exports = router;
