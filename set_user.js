@@ -23,14 +23,4 @@ firstUser.save(function(err) {
   }
 });
 
-User.findOne({ userName: 'admin'}, function(err, user) {
-  if (err) throw err;
-  user.comparePassword('admin', function(err, isMatch) {
-    if (err) throw err;
-    console.log('admin', isMatch);
-  });
-  user.comparePassword('aadmin', function(err, isMatch) {
-    if (err) throw err;
-    console.log('aadmin', isMatch);
-  });
-})
+User.find().then(res => console.log(res));
