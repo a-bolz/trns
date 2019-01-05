@@ -9,23 +9,25 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 const User = require('./models/user');
 
 var firstUser = new User({
-  userName: 'testuser',
-  password: 'Password123',
-  email: 'tester@testemail.com'
+  userName: 'admin',
+  password: 'admin',
+  email: 'admin@example.com'
 });
+
+console.log(firstUser);
 
 firstUser.save(function(err) {
   if (err) throw err;
 });
 
-User.findOne({ userName: 'testuser'}, function(err, user) {
+User.findOne({ userName: 'admin'}, function(err, user) {
   if (err) throw err;
-  user.comparePassword('Password123', function(err, isMatch) {
+  user.comparePassword('admin', function(err, isMatch) {
     if (err) throw err;
-    console.log('Password123', isMatch);
+    console.log('admin', isMatch);
   });
-  user.comparePassword('123Password', function(err, isMatch) {
+  user.comparePassword('aadmin', function(err, isMatch) {
     if (err) throw err;
-    console.log('Password123', isMatch);
+    console.log('aadmin', isMatch);
   });
 })
