@@ -21,6 +21,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/user');
+const prepareDeals = require('./services/files');
 
 const app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -104,7 +105,6 @@ app.post('/login',
   },
   async function (req, res) {
     try {
-    console.log('ja');
     const deals = await Deal.find({});
     res.send(deals);
     } catch (error) {
@@ -112,13 +112,3 @@ app.post('/login',
     }
   }
 )
-
-app.get('/bla',
-  function(req, res) {
-    console.log('in bla', req.user);
-    if (req.user) {
-      res.send('ja');
-    } else {
-      res.send('nee')
-    }
-  });
