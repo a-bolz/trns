@@ -54,7 +54,9 @@ router.get('/gmail/postdraft', async (req, res) => {
   try {
     const token = await gmail_auth.refreshToken();
     await gmail.submitDraft(token, {});
+    res.send('ok');
   } catch(error) {
+    res.send(error)
     console.log(error);
   }
 })
