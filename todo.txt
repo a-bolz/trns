@@ -1,0 +1,7 @@
+aanpassen fetch call richting teamleader voor binnenhalen relevante data - 1.5
+email text/styling aanpassen - 
+feedback pagina css updaten
+feedback pagina verbinding met database uitwerken/testen
+pagina maken voor downloaden dealdata.
+deployment
+
