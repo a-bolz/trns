@@ -12,6 +12,10 @@ const teamleader = require('./controllers/teamleader');
 const feedback = require('./controllers/feedback');
 const mongoose = require('mongoose');
 const mongoDB = process.env.MONGODB_URI;
+const expressVue = require("express-vue");
+const jwt = require('jsonwebtoken');
+const user = require('./models/user.js');
+const withAuth = require('./middleware.js');
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 
@@ -24,6 +28,11 @@ const User = require('./models/user');
 const prepareDeals = require('./services/files');
 
 const app = express();
+const expressVueMiddleware = expressVue.init({
+  rootPath: path.join(__dirname, '/vue'),
+});
+
+app.use(expressVueMiddleware);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -78,6 +87,123 @@ passport.deserializeUser(function(id, cb) {
 app.get('/', function(req, res) {
   res.render('root');
 });
+
+app.get('/secret', withAuth, (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ secret: 1 }));
+})
+
+app.get('/vue/login', (req, res, next) => {
+  const data = {
+    urls: {
+      secret: '/secret',
+      secretpage: '/vue/secret',
+      homepage: '/vue/home',
+      login: '/vue/login',
+    }
+  }
+
+
+  req.vueOptions = {
+    head: {
+      title: 'Page Title',
+      metas: [
+        { property: 'og:title', content: 'Page Title'},
+      ]
+    }
+  }
+  res.renderVue('login.vue', data, req.vueOptions);
+})
+
+app.get('/vue/home', (req, res, next) => {
+  const data = {
+    something: 'this',
+    urls: {
+      secret: '/secret',
+      secretpage: '/vue/secret',
+      homepage: '/vue/home',
+      login: '/vue/login',
+    }
+  }
+
+
+  req.vueOptions = {
+    head: {
+      title: 'Page Title',
+      metas: [
+        { property: 'og:title', content: 'Page Title'},
+      ]
+    }
+  }
+  res.renderVue('main.vue', data, req.vueOptions);
+})
+
+app.get('/vue/secret', (req, res) => {
+  const data = {
+    urls: {
+      secret: '/secret',
+      secretpage: '/vue/secret',
+      homepage: '/vue/home',
+      login: '/vue/login',
+    }
+  }
+  req.vueOptions = {
+    head: {
+      title: 'Page Title',
+      metas: [
+        { property: 'og:title', content: 'Page Title'},
+      ]
+    }
+  }
+  res.renderVue('secret.vue', data, req.vueOptions);
+})
+
+app.post('/register', (req, res) => {
+  const { email, password, userName } = req.body;
+  const user = new User({ email, password, userName });
+  user.save((err) => {
+    if (err) {
+      res.status(500).send("error registering user. please try again");
+    } else {
+      res.status(200).send("Welcome new user");
+    }
+  })
+});
+
+const secret = 'supersecretsecretshh';
+app.post('/user/authenticate', (req, res) => {
+  const { userName, password } = req.body;
+  user.findOne({userName}, (err, user) => {
+    if (err) {
+      console.error(err);
+      res.status(500)
+        .json({
+          error: 'Internal error please try again'
+        });
+    } else if (!user) {
+      res.status(401)
+        .json({
+          error: 'Incorrect username or password'
+        });
+    } else {
+      user.comparePassword(password, (err, same) => {
+        if (err) {
+          res.status(500)
+            .json({
+              error: 'Incorrect username or password'
+            })
+        } else {
+          const payload =  { userName };
+          const token = jwt.sign(payload, secret, {
+            expiresIn: '1h'
+          })
+          res.cookie('token', token, { httpOnly: true })
+            .sendStatus(200);
+        }
+      })
+    }
+  })
+})
 
 app.get('/login',
   function(req, res) {

@@ -12,6 +12,7 @@ const promisify = require('promisify');
 const util = require('util');
 const mimemessage = require('mimemessage');
 const Base64 = require('js-base64').Base64;
+const User = require('../models/user.js');
 
 const readFile = util.promisify(fs.readFile);
 
