@@ -8,10 +8,11 @@ const util = require('util');
 const fs = require('fs')
 const readFile = util.promisify(fs.readFile);
 const GMAIL_TOKEN_PATH = 'gmail_token.json';
+const TL = (...args) => `https://app.teamleader.eu/${args.join('/')}`
 
 router.get('/teamleader', (req, res) => {
   res.redirect(url.format({
-    pathname: "https://app.teamleader.eu/oauth2/authorize",
+    pathname: TL('oauth2', 'authorize'),
     query: {
       client_id: process.env.TL_CLIENT_ID,
       response_type: 'code',
@@ -52,11 +53,12 @@ router.get('/gmail/callback', async (req, res) => {
 
 router.get('/gmail/postdraft', async (req, res) => {
   try {
+    console.log("\n\n\n\npostdraft\n\n\n\n");
     const token = await gmail_auth.refreshToken();
+    console.log(`\n\n\n\ntoken: ${token} postdraft\n\n\n\n`);
     await gmail.submitDraft(token, {});
     res.send('ok');
   } catch(error) {
-    res.send(error)
     console.log(error);
   }
 })

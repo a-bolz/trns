@@ -7,17 +7,21 @@ const env = process.env
 const Deal = require('../models/deal');
 
 router.post('/deal_update', async (req, res) => {
-  console.log('DATA VAN TEAMLEADER:', req.body.subject.id);
+  //console.log('DATA VAN TEAMLEADER:', req.body.subject.id);
   try {
     const tl_access_token = await tl_auth.refreshToken();
-    const deals_info = await teamleader.getDealsInfo(tl_access_token, req.body.subject.id);
-    const status = deals_info.data.data.status;
-    if (status === 'won') {
-      const deal = new Deal({firstName: 'andreas', lastName: 'bolz', email: 'andreasbolz@gmail.com', deal_id: req.body.subject.id, email_sent: false, feedback_received: false});
-      await deal.save();
-      console.log('saved deal:', deal);
-      const token = await gmail_auth.refreshToken();
-      await gmail.submitDraft(token, deal);
+    const dealdata = await teamleader.getDealsInfo(tl_access_token, req.body.subject.id);
+    const data = dealdata.data.data;
+    if (data.status === 'won') {
+      console.log(data.lead.contact_person.id);
+      const tl_access_token = await tl_auth.refreshToken();
+      const contact = await teamleader.getContactInfo(tl_access_token, data.lead.contact_person.id);
+      console.log(contact.data.data);
+ //     const deal = new Deal({firstName: 'andreas', lastName: 'bolz', email: 'andreasbolz@gmail.com', deal_id: req.body.subject.id, email_sent: false, feedback_received: false});
+ //     await deal.save();
+ //     console.log('saved deal:', deal);
+ //     const token = await gmail_auth.refreshToken();
+ //     await gmail.submitDraft(token, deal);
     }
 //    const id = deals_info.data.data.lead.customer.id;
 //    const contacts = await teamleader.getContactsList(tl_access_token, { company: id })
@@ -26,7 +30,7 @@ router.post('/deal_update', async (req, res) => {
 //    console.log('response van gmail', gmail_response);
 
   } catch(error) {
-    console.log(error);
+    console.log("\n\n\n\n ERROR \n\n\n\n", error.response);
   }
 })
 

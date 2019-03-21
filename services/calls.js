@@ -23,7 +23,8 @@ const urls = {
   list_webhooks: 'https://api.teamleader.eu/webhooks.list',
   deals_info: 'https://api.teamleader.eu/deals.info',
   contacts_list: 'https://api.teamleader.eu/contacts.list',
-  webhooks_register: 'https://api.teamleader.eu/webhooks.register'
+  webhooks_register: 'https://api.teamleader.eu/webhooks.register',
+  contacts_info: 'https://api.teamleader.eu/contacts.info',
 }
 
 const getEmail = (deal) => {
@@ -165,6 +166,20 @@ module.exports = {
           }
         })
       },
+      getContactInfo: async (access_token, id) => {
+        console.log("\n\n\n\n fetching contact info", access_token, id)
+        return axios({
+          method: 'get',
+          url: urls.contacts_info,
+          header: {
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`,
+          },
+          data: {
+            id: id
+          },
+        })
+      },
       getContactsList: async (access_token, filter) => {
         return axios({
           method: 'get',
@@ -263,6 +278,7 @@ module.exports = {
       },
       submitDraft: async(token, deal) => {
         try {
+          console.log('insubmitdraft', token, deal);
           const email = getEmail(deal);
           return axios({
             method: 'post',
