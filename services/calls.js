@@ -14,6 +14,11 @@ const mimemessage = require('mimemessage');
 const Base64 = require('js-base64').Base64;
 const User = require('../models/user.js');
 const ejs = require('ejs');
+const debug = (data, flag="DEBUG") => console.log(
+  `${flag}=========================================\n\n\n\n\n`,
+  data,
+  `\n\n\n\n\n=========================================${flag}`
+);
 
 const readFile = util.promisify(fs.readFile);
 
@@ -27,6 +32,7 @@ const urls = {
   contacts_list: 'https://api.teamleader.eu/contacts.list',
   webhooks_register: 'https://api.teamleader.eu/webhooks.register',
   contacts_info: 'https://api.teamleader.eu/contacts.info',
+  companies_info: 'https://api.teamleader.eu/companies.info',
 }
 
 const getEmail = (deal) => {
@@ -178,17 +184,29 @@ module.exports = {
         })
       },
       getContactInfo: async (access_token, id) => {
-        console.log("\n\n\n\n fetching contact info", access_token, id)
-        return axios({
+        return await axios({
           method: 'get',
           url: urls.contacts_info,
-          header: {
+          headers: {
             'content-type': 'application/json',
             'Authorization': `Bearer ${access_token}`,
           },
           data: {
             id: id
+          }
+        })
+      },
+      getCompanyInfo: async (access_token, id) => {
+        return await axios({
+          method: 'get',
+          url: urls.companies_info,
+          headers: {
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${access_token}`,
           },
+          data: {
+            id: id
+          }
         })
       },
       getContactsList: async (access_token, filter) => {

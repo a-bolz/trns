@@ -26,11 +26,13 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/user');
 const prepareDeals = require('./services/files');
+const {debug} = require('./services/log');
 
 const app = express();
 const expressVueMiddleware = expressVue.init({
   rootPath: path.join(__dirname, '/vue'),
 });
+
 
 app.use(expressVueMiddleware);
 app.set('views', path.join(__dirname, 'views'));
