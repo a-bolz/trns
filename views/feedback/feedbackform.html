@@ -4,21 +4,77 @@
 </head>
 <body class="quotation">
 
-    <div class="outer">
-  <div class="middle">
-    <div class="inner">
-          <h2>Dankjewel voor je feedback!</h2>
-    </div>
-  </div>
-</div>
     
+    <div class="row transparantbox">
+        <div class="column left-column" style="font-size: 3em; ">
+            <h1 class="number">3</h1>
+        </div>
+          <div class="column right-column">
+              <div class ="right-column-inner">
+              <h2>Dankjewel voor je feedback!</h2><br>
+                  <h3>Vervelend dat je niet tevreden bent. <br>
+                    Zou je dit hieronder willen toelichten?</h3>
+              
+              <br>
+
+              <form action="/action_page.php">
+                  <textarea id="subject" name="subject" placeholder="" style="height:200px; width:400px; resize: none;"></textarea>
+                  <br>
+                  <input class="btn-orange" type="submit" value="Submit">
+                </form>
+                  </div>
+            </div>
+    </div>
+    
+
+    
+    <div>
+    
+        <div style="font-size:12.8px">
+<div dir="ltr"><p style="margin-bottom:0.0001pt;line-height:normal;back
+ground-image:initial;background-position:initial;background-repeat:initial"
+><b style="font-size:12.8px"><span style="font-size:10pt;font-family:Ar
+ial,sans-serif;color:rgb(2,73,88)">Met vriendelijke groet,<br>Jordi Heres</
+span></b></p><p style="margin-bottom:0.0001pt;line-height:normal;backgrou
+nd-image:initial;background-position:initial;background-repeat:initial"><span style="font-size:9.5pt;font-family:Arial,sans-serif"></span></p></div>
+</div>
+
+
+
+<p style="font-size:12.8px;margin-bottom:12pt;background-image:init
+ial;background-position:initial;background-repeat:initial"><img src="http
+s://docs.google.com/uc?export=download&amp;id=0B7d9i4phj-JKTVFydGhVTVlr
+Q2M&amp;revid=0B7d9i4phj-JKNzBWZEVDTk4zWWV1SHR2dHJFQkZSeDBzRWNjPQ" width
+="96" height="96" style="font-size: 12.8px;"><br></p><div style="fo
+nt-size:12.8px"><div dir="ltr"><p style="margin:0cm 0cm 0.0001pt;backgr
+ound-image:initial;background-position:initial;background-repeat:initial">
+<b><span style="font-size:7.5pt;font-family:Arial,sans-serif;color:rgb(2,7
+3,88)">Vertaalbureau Textwerk B.V.</span></b><span style="font-size:9.5pt
+;font-family:Arial,sans-serif;color:rgb(2,73,88)"></span></p><p style="ma
+rgin:0cm 0cm 0.0001pt;background-image:initial;background-position:initial;
+background-repeat:initial"><b><span lang="EN-US" style="font-size:7.5pt
+;font-family:Arial,sans-serif;color:rgb(242,99,74)">Jacob van Lennepstraat 
+78 H,=C2=A0</span></b><b><span style="font-size:7.5pt;font-family:Arial,s
+ans-serif;color:rgb(242,99,74)">1053 HM</span></b><span style="font-size:
+9.5pt;font-family:Arial,sans-serif;color:rgb(242,99,74)"></span></p><p styl
+e="font-size:12.8px;background-image:initial;background-position:initial;
+background-repeat:initial;margin:0cm 0cm 0.0001pt"></p><p style="margin:0
+cm 0cm 0.0001pt;background-image:initial;background-position:initial;backgr
+ound-repeat:initial"><b><span style="font-size:7.5pt;font-family:Arial,sa
+ns-serif;color:rgb(242,99,74)">Amsterdam | The Netherlands</span></b><span
+style="font-size:9.5pt;font-family:Arial,sans-serif;color:rgb(242,99,74)"
+></span></p><p style="font-size:12.8px;background-image:initial;backgroun
+d-position:initial;background-repeat:initial;margin:0cm 0cm 0.0001pt"><b st
+yle="color:rgb(242,99,74);font-family:Arial,sans-serif;font-size:10px">
+    
+    
+    
+    </div>
+
     
     
 </body>
 </html>
-<html>
-<head>
-</head>
 
 <style>
 /*
@@ -38,6 +94,7 @@ body {
 .thankyou {
 	background-image: url('../../public/bg-textwerk.jpg');
 	background-size: cover;
+    background-position: center;
 	background-repeat: no-repeat;
     background-attachment: fixed;
 	color: #fff;
@@ -52,31 +109,56 @@ body {
 }
     
     
+    * {
+      box-sizing: border-box;
+    }
     
-    
-    
-    
-    .outer {
-  display: table;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-}
+    .column {
+      float: left;
+      padding: 50px;
+        margin:auto;
+        margin-top:200px;
+        width: 200px;
+    }
+    .left-column {
+        width:33%;
+    }
 
-.middle {
-  display: table-cell;
-  vertical-align: middle;
-}
+    .right-column {
+        width:66%;
+    }
+    
+    .right-column-inner {
+        margin: 0 auto;
+        width: 400px;
+    }
+    
+    .number{
+        float:right;
+    }
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    
+    h1 {
+        text-decoration: underline;
+        vertical-align: text-top;
+        color : #ffffff;
+    }
+    
 
-.inner {
-  margin-left: auto;
-  margin-right: auto;
-  width: 400px;
-  /*whatever width you want*/
-}
+    
+    .transparantbox {
+      margin: 30px;
+      background-color: rgba(0,0,0,0.25);;
+    }
+    
+    .transparantbox h2 {
 
+    }
+    
 
 
 /*
