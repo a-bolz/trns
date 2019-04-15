@@ -20,7 +20,7 @@ router.post('/deal_update', async (req, res) => {
  //     const deal = new Deal({firstName: 'andreas', lastName: 'bolz', email: 'andreasbolz@gmail.com', deal_id: req.body.subject.id, email_sent: false, feedback_received: false});
  //     await deal.save();
  //     console.log('saved deal:', deal);
- //     const token = await gmail_auth.refreshToken();
+      const token = await gmail_auth.refreshToken();
  //     await gmail.submitDraft(token, deal);
     }
 //    const id = deals_info.data.data.lead.customer.id;
@@ -33,6 +33,12 @@ router.post('/deal_update', async (req, res) => {
     console.log("\n\n\n\n ERROR \n\n\n\n", error.response);
   }
 })
+
+router.get('/submitdraft', async(req,res) => {
+   const token = await gmail_auth.refreshToken();
+  const deal = {firstName: 'andreas', email: 'andreasb@gmail.com'}
+   await gmail.submitDraft(token, deal);
+});
 
 //pass ngrok tunnel as query param in get_request
 router.get('/set_webhook', async (req, res) => {

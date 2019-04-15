@@ -13,6 +13,7 @@ const util = require('util');
 const mimemessage = require('mimemessage');
 const Base64 = require('js-base64').Base64;
 const User = require('../models/user.js');
+const ejs = require('ejs');
 
 const readFile = util.promisify(fs.readFile);
 
@@ -29,13 +30,22 @@ const urls = {
 }
 
 const getEmail = (deal) => {
+  let path = '/home/andreas/code/express/views/feedback/thankyou.ejs';
+  console.log(path)
+  let body;
+  ejs.renderFile(path, function(err,data) { 
+    body = data;
+    console.log('in renderfile', data);
+  })
+  console.log('thebody', body);
   const msg = mimemessage.factory({
     contentType: 'text/html;charset=utf-8',
-    body: [`
-      Beste ${deal.firstName},
-      Bedankt voor je deal met lbaat\nGr
-      stem op: https://localhost:5000/feedback?id=${Base64.encode(deal.deal_id)}
-    `]
+    body: [body]
+  //  `
+  //    Beste ${deal.firstName},
+  //    Bedankt voor je deal met lbaat\nGr
+  //    stem op: https://localhost:5000/feedback?id=${Base64.encode(deal.deal_id)}
+  //  `]
   })
   msg.header('from', 'andreasbolz@gmail.com');
   msg.header('to', deal.email);
