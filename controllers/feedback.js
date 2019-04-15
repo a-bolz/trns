@@ -49,6 +49,10 @@ router.get('/overzicht',
   }
 );
 
+router.get('/reviewverzoek', async (req, res) => {
+  res.render('feedback/thankyou');
+});
+
 
 
 module.exports = router;
