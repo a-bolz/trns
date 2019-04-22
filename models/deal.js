@@ -12,7 +12,7 @@ const dealSchema = new Schema({
   status: { type: String, required: true, default: 'Deal Won'},
   feedback: {type: String, required: false},
   rating: {type: Number, required: false},
-});
+}, {timestamps: {}});
 
 dealSchema.statics.findByDealId = function(id, cb) {
   return this.findOne({ dealId: id }, cb);

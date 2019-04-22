@@ -50,13 +50,31 @@ router.post('/submit', async (req, res) => {
   }
 });
 
-router.get('/overzicht', 
-  require('connect-ensure-login').ensureLoggedIn(),
-  async (req, res)=> {
-    const deals = await Deal.find({});
-    res.render('feedback/overzicht', {deals: deals});
+//router.get('/overzicht', 
+//  async (req, res)=> {
+//    res.render('feedback/overzicht', {deals: deals});
+//  }
+//);
+
+router.get('/overzicht', async (req, res, next) => {
+  require('connect-ensure-login').ensureLoggedIn();
+  const deals = await Deal.find({}).lean();
+  const data = {
+    deals: deals,
   }
-);
+
+
+  req.vueOptions = {
+    head: {
+      title: 'Page Title',
+      metas: [
+        { property: 'og:title', content: 'Page Title'},
+      ]
+    }
+  }
+  res.renderVue('main.vue', data, req.vueOptions);
+})
+
 
 router.get('/reviewverzoek', async (req, res) => {
   res.render('feedback/thankyou');
