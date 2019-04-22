@@ -1,13 +1,14 @@
+const dotenv = require('dotenv').config();
 const fs = require('fs')
 const readline = require('readline');
 const {google} = require('googleapis');
 const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
 const GMAIL_TOKEN_PATH = 'gmail_token.json';
 const GMAIL_CREDENTIALS_PATH = 'credentials.json';
+const EMAIL_SENDER = process.env.EMAIL_SENDER;
 const TL_TOKEN_PATH = 'tl_token.json'
 const BASE_URL = process.env.BASE_URL;
 const client_id = process.env.TL_CLIENT_ID;
-const client_secret = process.env_TL_CLIENT_SECRET;
 const axios = require('axios');
 const promisify = require('promisify');
 const util = require('util');
@@ -27,6 +28,7 @@ const scopes = [
   'https://www.googleapis.com/auth/gmail.modify'
 ]
 
+
 const urls = {
   list_webhooks: 'https://api.teamleader.eu/webhooks.list',
   deals_info: 'https://api.teamleader.eu/deals.info',
@@ -41,32 +43,18 @@ const getEmail = ({contactEmail, contactFirstName, dealId}) => {
   const msg = mimemessage.factory({
     contentType: 'text/html;charset=utf-8',
 
-    body: [
-    `Hoi ${contactFirstName},
-
-
-     Mijn naam is Zaza en ik ben marketeer bij Textwerk. Kortgeleden hebben wij jouw vertaalopdracht opgeleverd en we zijn benieuwd hoe tevreden je daarover bent.
-
-
-      Zou jij je mening willen geven en aan kunnen geven of je ons zou aanbevelen?
-
-
-
-      Hoe waarschijnlijk is het dat je Textwerk op basis van dit project zou aanbevelen aan een relatie of collega?
-
-
-      ${
+    body: `Hoi ${contactFirstName},\n\n<p>Mijn naam is Zaza en ik ben marketeer bij Textwerk. Kortgeleden hebben wij jouw vertaalopdracht opgeleverd en we zijn benieuwd hoe tevreden je daarover bent.</p>
+    <p>Zou jij je mening willen geven en aan kunnen geven of je ons zou aanbevelen?</p>
+    <p>Hoe waarschijnlijk is het dat je Textwerk op basis van dit project zou aanbevelen aan een relatie of collega?</p>
+    <p>${
         [1,2,3,4,5,6,7,8,9,10]
           .map(d => {
-            return `<a href="${BASE_URL}feedback?id=${dealId}&rating=${d}">${d}</a>`
+            return `<a href="${process.env.BASE_URL}feedback?id=${dealId}&rating=${d}">${d}</a>`
           })
           .join(' - ')
-       }
-
-
-      Ik ben benieuwd naar je feedback!
+       }</p>
+      <p>Ik ben benieuwd naar je feedback!</p>
     `
-    ]
   })
   msg.header('from', 'andreasbolz@gmail.com');
   msg.header('to', contactEmail);
@@ -319,9 +307,9 @@ module.exports = {
           },
         })
       },
-      submitDraft: async(token, deal) => {
+      submitDraft: async(token) => {
         try {
-          const email = getEmail(deal);
+          const email = getEmail({contactEmail: 'andreasbolz@gmail.com',contactFirstName: 'BoB', dealId: 5});
           return axios({
             method: 'post',
             url: 'https://www.googleapis.com/gmail/v1/users/me/drafts',
