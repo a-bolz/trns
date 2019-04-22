@@ -16,6 +16,7 @@ const expressVue = require("express-vue");
 const jwt = require('jsonwebtoken');
 const user = require('./models/user.js');
 const withAuth = require('./middleware.js');
+const jsoncsv = require('express-json-csv')(express);
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 
@@ -150,32 +151,19 @@ app.get('/login',
 
 app.post('/login',
   async function(req, res, next) {
-    console.log(req.body);
     passport.authenticate('local', async function (error, user, info) {
-      console.log('erro',error);
-      console.log('user',user);
-      console.log('info',info);
 
       if (error) {
-        console.log(1);
         res.status(401).send(error);
       } else if (!user) {
-        console.log(2);
         res.status(401).send(info);
       } else {
-        console.log(3);
-        next();
+    const deals = await Deal.find({}).lean();
+      res.csv(deals,
+            {fields:['dealId', 'dealTitle', 'companyName', 'companyId', 'contactFirstName', 'contactLastName', 'contactId', 'contactEmail', 'status', 'feedback', 'rating']})
       }
 
      // res.status(401).send(info);
     })(req, res);
   },
-  async function (req, res) {
-    try {
-    const deals = await Deal.find({});
-    res.send(deals);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 )

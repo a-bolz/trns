@@ -4,6 +4,7 @@
       <span class="name">{{deal.contactFirstName}} {{ deal.contactLastName }}</span>
       <span class="company">{{ deal.companyName }}</span>
       <span class="rating">{{ deal.rating }}</span>
+      <span class="submitted">{{ deal.updatedAt }}</span>
     </div>
   </div>
 </template>
@@ -17,6 +18,7 @@ export default {
     }
   },
   mounted() {
+    window.deals = this.deals;
     console.log(this.deals);
   },
 }
