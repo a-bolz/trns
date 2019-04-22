@@ -5,6 +5,7 @@ const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
 const GMAIL_TOKEN_PATH = 'gmail_token.json';
 const GMAIL_CREDENTIALS_PATH = 'credentials.json';
 const TL_TOKEN_PATH = 'tl_token.json'
+const BASE_URL = process.env.BASE_URL;
 const client_id = process.env.TL_CLIENT_ID;
 const client_secret = process.env_TL_CLIENT_SECRET;
 const axios = require('axios');
@@ -35,28 +36,42 @@ const urls = {
   companies_info: 'https://api.teamleader.eu/companies.info',
 }
 
-const getEmail = (deal) => {
-  let path = '/home/andreas/code/express/views/feedback/thankyou.ejs';
-  console.log(path)
-  let body;
-  ejs.renderFile(path, function(err,data) { 
-    body = data;
-    console.log('in renderfile', data);
-  })
-  console.log('thebody', body);
+const getEmail = ({contactEmail, contactFirstName, dealId}) => {
+  console.log('email params',contactEmail, contactFirstName,dealId);
   const msg = mimemessage.factory({
     contentType: 'text/html;charset=utf-8',
-    body: [body]
-  //  `
-  //    Beste ${deal.firstName},
-  //    Bedankt voor je deal met lbaat\nGr
-  //    stem op: https://localhost:5000/feedback?id=${Base64.encode(deal.deal_id)}
-  //  `]
+
+    body: [
+    `Hoi ${contactFirstName},
+
+
+     Mijn naam is Zaza en ik ben marketeer bij Textwerk. Kortgeleden hebben wij jouw vertaalopdracht opgeleverd en we zijn benieuwd hoe tevreden je daarover bent.
+
+
+      Zou jij je mening willen geven en aan kunnen geven of je ons zou aanbevelen?
+
+
+
+      Hoe waarschijnlijk is het dat je Textwerk op basis van dit project zou aanbevelen aan een relatie of collega?
+
+
+      ${
+        [1,2,3,4,5,6,7,8,9,10]
+          .map(d => {
+            return `<a href="${BASE_URL}feedback?id=${dealId}&rating=${d}">${d}</a>`
+          })
+          .join(' - ')
+       }
+
+
+      Ik ben benieuwd naar je feedback!
+    `
+    ]
   })
   msg.header('from', 'andreasbolz@gmail.com');
-  msg.header('to', deal.email);
+  msg.header('to', contactEmail);
   msg.header('subject', 'please rate us');
-  return Base64.encode(msg.toString());
+  return Base64.encode(msg.toString()).replace(/\//g, "_").replace(/\+/g, "-");
 }
 
 function draftMessage(params) {
@@ -145,7 +160,6 @@ module.exports = {
       return Promise.resolve(response.data);
     },
     refreshToken: async () => {
-
       try {
         const file = await readFile(TL_TOKEN_PATH, 'utf8');
         const parsedFile = JSON.parse(file);
@@ -307,7 +321,6 @@ module.exports = {
       },
       submitDraft: async(token, deal) => {
         try {
-          console.log('insubmitdraft', token, deal);
           const email = getEmail(deal);
           return axios({
             method: 'post',

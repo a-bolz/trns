@@ -31,10 +31,8 @@ dealSchema.statics.findOrCreate = async function(contact, deal, company) {
     return deal;
   });
   if (existing.length) {
-    console.log("this one exists", existing);
     return existing[0];
   }
-  console.log('This one is new');
   let newDeal = new this({
     dealId: dealId,
     dealTitle: title,
