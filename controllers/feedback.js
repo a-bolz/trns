@@ -17,7 +17,7 @@ router.get('/submit', async (req, res) => {
     if (!!cijfer && !!deal) {
       deal.rating = cijfer;
       await deal.save();
-      if (cijfer < 6) {
+      if (cijfer < 8) {
         console.log('render written feedback');
         res.render('feedback/written_feedback', {id, cijfer}); //we want written feedback;
       } else {
