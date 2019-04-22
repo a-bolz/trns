@@ -13,7 +13,7 @@ router.post('/deal_update', async (req, res) => {
     let tl_access_token = await tl_auth.refreshToken();
     const dealdata = await teamleader.getDealsInfo(tl_access_token, req.body.subject.id);
     const data = dealdata.data.data;
-    if (data.status === 'won' || true) {
+    if (data.status === 'won') {
       const company_id = data.lead.customer.id;
       const contact_id = data.lead.contact_person.id;
       tl_access_token = await tl_auth.refreshToken();
@@ -24,7 +24,7 @@ router.post('/deal_update', async (req, res) => {
       const companydata = company.data.data;
       const deal = await Deal.findOrCreate(contactdata, data, companydata);
       console.log('dit is de deal', deal);
-      if (deal.status === 'Deal won' || true) { //dan moeten we een draft submitten
+      if (deal.status === 'Deal won') { //dan moeten we een draft submitten
         const token = await gmail_auth.refreshToken();
         let res = await gmail.submitDraft(token, deal);
 

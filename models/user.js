@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-bcrypt = require('bcrypt');
+bcrypt = require('bcryptjs');
 SALT_WORK_FACTOR = 10;
 const mongooseUniqueValidator = require('mongoose-unique-validator');
 

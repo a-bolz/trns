@@ -307,9 +307,9 @@ module.exports = {
           },
         })
       },
-      submitDraft: async(token) => {
+      submitDraft: async(token, deal) => {
         try {
-          const email = getEmail({contactEmail: 'andreasbolz@gmail.com',contactFirstName: 'BoB', dealId: 5});
+          const email = getEmail(deal);
           return axios({
             method: 'post',
             url: 'https://www.googleapis.com/gmail/v1/users/me/drafts',
