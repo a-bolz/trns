@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body class="quotation">
+  <div class="wrapper row transparantbox">
+
+    <div class="column left-column" style="font-size: 3em; ">
+      <h1 class="number">3</h1>
+    </div>
+
+    <div class="column right-column">
+      <div class ="right-column-inner">
+          <h2>Dankjewel voor je feedback!</h2><br>
+          <h3>Vervelend dat je niet tevreden bent. <br>Zou je dit hieronder willen toelichten?</h3><br>
+          <form action="submit" method="post">
+            <input type="text" value="<%=id%>" id="id" name="id" style="display:none"/>
+            <input type="text" value="<%=cijfer%>" id="cijfer" name="cijfer" style="display:none"/>
+            <textarea
+                id="feedback"
+                name="feedback"
+                placeholder=""
+                style="height:200px; width:400px; resize: none;"
+            ></textarea><br>
+            <input class="btn-orange" type="submit">Submit</input>
+          </form>
+      </div>
+    </div>
+
+    <p>Met Vriendelijke groet,<br>Jordi Heres</p>
+    <%- include('../partials/footer') %>
+  </div>
+</body>
+</html>
+<style>
+/*
+ * General Styles
+ */
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+body {
+  font-family: 'Roboto', sans-serif !important;
+}
+@media (min-width: 992px) {
+  .container-fluid {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+.quotation,
+.thankyou {
+  background-image: url('../bg-textwerk.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+    background-attachment: fixed;
+  color: #fff;
+}
+.quotation h3,
+.quotation h5 {
+  color: #fff;
+  padding-bottom: 10px;
+}
+.quotation h3 {
+  padding-bottom: 15px;
+}
+.wrapper {
+    width: 440px;
+    margin: auto;
+}
+
+
+</style>

@@ -15,7 +15,7 @@ const dealSchema = new Schema({
 });
 
 dealSchema.statics.findByDealId = function(id, cb) {
-  return this.find({ dealId: id }, cb);
+  return this.findOne({ dealId: id }, cb);
 }
 
 dealSchema.statics.findOrCreate = async function(contact, deal, company) {
@@ -30,9 +30,7 @@ dealSchema.statics.findOrCreate = async function(contact, deal, company) {
     if (err) throw(err);
     return deal;
   });
-  if (existing.length) {
-    return existing[0];
-  }
+  if (existing) return existing;
   let newDeal = new this({
     dealId: dealId,
     dealTitle: title,

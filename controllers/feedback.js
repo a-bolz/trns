@@ -7,37 +7,46 @@ const Base64 = require('js-base64').Base64;
 const passport = require('../passport');
 const ejs = require('ejs');
 
-router.get('/', async (req, res) => {
-  const id = Base64.decode(req.query.id);
-  if (req.query.cijfer) {
-    try {
-      console.log('posted feedback');
-      await Deal.updateOne(
-        { deal_id: req.query.deal_id },
-        { $set: { feedback: req.query.feedback, rating: req.query.rating }}
-      );
-      res.render('feedback/thankyou');
-    } catch(error) {
-      console.log(error);
-    }
-  } else {
-    try {
-      console.log(ejs.render('<%= people.join("-")%>', {people: ['andreas','milan']}));
-      console.log('no feedback yet, rendering form');
-      console.log(id);
-      const deal = await Deal.find({ deal_id: id });
-      console.log(deal);
-      if (false) {
-        res.render('feedback/sorry');
-      } else if (true) {
-        res.render('feedback/thankyou');
+router.get('/submit', async (req, res) => {
+  try {
+    const { id, cijfer } = req.query;
+    const deal = await Deal.findByDealId(id, function(err, res) {
+      if (err) throw(err);
+      return res;
+    });
+    if (!!cijfer && !!deal) {
+      deal.rating = cijfer;
+      await deal.save();
+      if (cijfer < 6) {
+        console.log('render written feedback');
+        res.render('feedback/written_feedback', {id, cijfer}); //we want written feedback;
       } else {
-        //res.render('feedback', deal);
-        res.render('feedback/index', {title: 'test', message: 'testmessage', id: id});
+        console.log('render thankyou');
+        res.render('feedback/thankyou'); //we say thankyou
       }
-    } catch(error) {
-      console.log(error);
+    } else {
+      console.log('no rating/deal. render sorry');
+      res.render('feedback/sorry'); //geen cijfer of deal, er ging iets mis :/
     }
+  } catch(error) {
+    console.log('error in submit', error);
+    res.render('feedback/sorry');
+  }
+});
+
+router.post('/submit', async (req, res) => {
+  try {
+    const {id, cijfer, feedback} = req.body;
+    const deal = await Deal.findByDealId(id, function(err, res) {
+      if (err) throw(err);
+      return res;
+    });
+    deal.feedback = feedback;
+    await deal.save();
+    res.render('feedback/thankyou');
+  } catch (error) {
+    console.log(error);
+    res.render('feedback/thankyou');
   }
 });
 

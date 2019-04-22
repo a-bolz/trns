@@ -49,7 +49,7 @@ const getEmail = ({contactEmail, contactFirstName, dealId}) => {
     <p>${
         [1,2,3,4,5,6,7,8,9,10]
           .map(d => {
-            return `<a href="${process.env.BASE_URL}feedback?id=${dealId}&rating=${d}">${d}</a>`
+            return `<a href="${process.env.BASE_URL}feedback/submit?id=${dealId}&rating=${d}">${d}</a>`
           })
           .join(' - ')
        }</p>
