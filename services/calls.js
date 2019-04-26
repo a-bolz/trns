@@ -224,7 +224,7 @@ module.exports = {
           }
         })
       },
-      registerWebhook: async(access_token, tunnel) => {
+      registerWebhook: async(access_token) => {
         return axios({
           method: 'post',
           url: urls.webhooks_register,
@@ -236,7 +236,7 @@ module.exports = {
             types: [
               "deal.moved",
             ],
-            url: `${process.env.TUNNEL}teamleader/deal_update`,
+            url: `${process.env.TUNNEL || process.env.BASE_URL}teamleader/deal_update`,
           }
         })
       },
