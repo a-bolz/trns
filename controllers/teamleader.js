@@ -52,13 +52,11 @@ router.get('/submitdraft', async(req,res) => {
 //pass ngrok tunnel as query param in get_request
 router.get('/set_webhook', async (req, res) => {
   try {
-    console.log('dit sowieso eerst');
     const access_token = await tl_auth.refreshToken();
-    console.log('hier nog wel', access_token);
     await teamleader.registerWebhook(access_token);
-    console.log('en niet meer hier');
     res.redirect('/teamleader/list_webhooks');
   } catch(error) {
+    console.log(error);
   }
 })
 
